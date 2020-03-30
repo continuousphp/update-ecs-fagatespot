@@ -1,0 +1,10 @@
+{
+  "name": "cloudformation-send-response",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Frederic Dewinne <frederic@continuous.lu>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0"
+  }
+}

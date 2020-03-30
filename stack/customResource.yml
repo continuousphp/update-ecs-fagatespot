@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Cloud Formation CLuster for fargate spot Custom Resources Template
+
+Resources:
+
+  CustomResourceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: 'sts:AssumeRole'
+            Principal:
+              Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: ecs-cluster
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ecs:PutClusterCapacityProviders'
+                  - 'ecs:UpdateService'
+                Resource: '*'
+        - PolicyName: WriteCloudWatchLogs
+          PolicyDocument: 
+            Version: '2012-10-17'
+            Statement: 
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+        - PolicyName: InvokeLambdaFunction
+          PolicyDocument: 
+            Version: '2012-10-17'
+            Statement: 
+              - Effect: Allow
+                Action: 'lambda:InvokeFunction'
+                Resource: 'arn:aws:lambda:*:*:function:*'
+
+  CustomResourceSendResourcesResponse:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Code: ../../lib/_sendResponse
+      Handler: index.handler
+      Role: !GetAtt CustomResourceRole.Arn
+
+  CustomResourceFargateSpot:
+    Type: AWS::Lambda::Function
+    Properties:
+      Environment:
+        Variables:
+          Callback: !Ref CustomResourceSendResourcesResponse
+      Runtime: nodejs12.x
+      Code: ../../lib/_fargateSpotService
+      Handler: index.handler
+      Timeout: 300
+      Role: !GetAtt CustomResourceRole.Arn
+
+  
+Outputs:
+  FargateSpotArn:
+    Description: CLuster With capacity Provider Resource Type
+    Value: !GetAtt CustomResourceFargateSpot.Arn

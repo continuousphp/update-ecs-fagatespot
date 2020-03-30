@@ -1,0 +1,12 @@
+{
+  "name": "ecs-cluster-spot",
+  "version": "1.0.0",
+  "description": "create cluster ECS with fargat_spot capacity provider",
+  "main": "index.js",
+  "repository": "https://github.com/aws-samples/cookiecutter-aws-sam-hello-nodejs",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.637.0"
+  }
+}
