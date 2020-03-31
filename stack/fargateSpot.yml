@@ -1,0 +1,32 @@
+Description: Deploy your cluster and service on fargate spot
+Parameters:
+  ServiceName:
+    Description: Ecs Service Name use !GetAtt Service.Name
+    Type: String
+  ClusterId: 
+    Description: Ecs Service Name use !Ref Cluster
+    Type: String
+  Base: 
+    Description: See Capacity Provider documentation
+    Type: Number
+  Weight: 
+    Description: See Capacity Provider documentation
+    Type: Number
+
+Resources:
+  CustomResourcesStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: updateEcsServiceCluster.yml
+      
+  ECSCServiceFargateSpot:
+    Type: Custom::ECSServiceFargateSpot
+    DependsOn:
+      - ApiStack
+      - CustomResourceStack
+    Properties:
+      ServiceToken: !GetAtt CustomResourceStack.Outputs.FargateSpotArn
+      ServiceName: !Ref ServiceName
+      ClusterName: !Ref ClusterId
+      Base: !Ref Base
+      Weight: !Ref Weight
